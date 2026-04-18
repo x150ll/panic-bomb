@@ -7,7 +7,7 @@
 const CONFIG = Object.freeze({
 
   // ── Server ──────────────────────────────────────────────────────
-  SERVER_URL: 'https://panic-bomb-server.onrender.com',
+  SERVER_URL: 'https://panic-bomb.bonto.run',
 
   // ── Room ────────────────────────────────────────────────────────
   ROOM: Object.freeze({

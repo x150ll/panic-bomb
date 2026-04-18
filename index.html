@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#07070d" />
+  <meta name="description" content="Panic Bomb — Real-time multiplayer party game. Pass the bomb before it explodes!" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>PANIC BOMB</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Exo+2:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <!-- Socket.io client -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js" defer></script>
+</head>
+<body>
+
+  <!-- ============================================================ -->
+  <!--  DEVELOPER CREDIT                                            -->
+  <!-- ============================================================ -->
+  <a
+    href="https://www.tiktok.com/@x150ll"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="dev-credit"
+    aria-label="Made by x150ll"
+  >
+    <span class="dev-credit-dot"></span>
+    <span class="dev-credit-text">x150ll</span>
+  </a>
+
+  <!-- ============================================================ -->
+  <!--  GLOBAL CONTROLS (mute + network indicator)                  -->
+  <!-- ============================================================ -->
+  <div class="global-controls" aria-label="Global controls">
+    <button class="ctrl-btn" id="btn-mute" aria-label="Toggle sound" title="Toggle sound">
+      🔊
+    </button>
+  </div>
+  <div class="net-indicator" id="net-indicator" aria-hidden="true">
+    <span class="net-dot"></span>
+    <span class="net-label">Reconnecting...</span>
+  </div>
+
+  <!-- ============================================================ -->
+  <!--  BACKGROUND PARTICLES                                        -->
+  <!-- ============================================================ -->
+  <div id="bg-layer" aria-hidden="true">
+    <div class="bg-aurora"></div>
+    <div class="bg-smoke"></div>
+    <div class="bg-particles">
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <div class="bg-grid"></div>
+    <div class="bg-scanlines"></div>
+    <div class="bg-vignette"></div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!--  SCREEN: LANDING                                             -->
+  <!-- ============================================================ -->
+  <section id="screen-landing" class="screen active" role="main">
+    <div class="landing-content">
+
+      <div class="bomb-hero" aria-hidden="true">
+        <div class="bomb-outer-ring ring-3"></div>
+        <div class="bomb-outer-ring ring-2"></div>
+        <div class="bomb-outer-ring ring-1"></div>
+        <div class="bomb-body">
+          <span class="bomb-emoji">💣</span>
+          <div class="bomb-fuse">
+            <div class="fuse-spark"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="landing-title">
+        <h1 class="title-panic">PANIC</h1>
+        <h1 class="title-bomb">BOMB</h1>
+        <p class="title-tagline">Who's holding it when it blows?</p>
+      </div>
+
+      <div class="landing-actions">
+        <button class="btn btn-primary btn-large" id="btn-create-room">
+          <span class="btn-icon">🔥</span>
+          <span>CREATE ROOM</span>
+          <span class="btn-glow"></span>
+        </button>
+        <button class="btn btn-secondary btn-large" id="btn-join-room">
+          <span class="btn-icon">🚪</span>
+          <span>JOIN ROOM</span>
+        </button>
+      </div>
+
+      <p class="landing-players-hint">2 – 8 players · Real-time multiplayer</p>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!--  SCREEN: JOIN / CREATE ROOM                                  -->
+  <!-- ============================================================ -->
+  <section id="screen-room" class="screen" role="main">
+    <div class="screen-header">
+      <button class="btn-back" id="btn-back-from-room" aria-label="Go back">
+        <span>←</span> BACK
+      </button>
+    </div>
+
+    <!-- CREATE ROOM panel -->
+    <div class="room-panel" id="panel-create">
+      <div class="panel-title">
+        <span class="panel-icon">⚙️</span>
+        ROOM SETTINGS
+      </div>
+
+      <div class="setting-group">
+        <label class="setting-label">Max Players</label>
+        <div class="setting-chips" id="chips-max-players">
+          <button class="chip" data-value="2">2</button>
+          <button class="chip" data-value="3">3</button>
+          <button class="chip active" data-value="4">4</button>
+          <button class="chip" data-value="5">5</button>
+          <button class="chip" data-value="6">6</button>
+          <button class="chip" data-value="8">8</button>
+        </div>
+      </div>
+
+      <div class="setting-group">
+        <label class="setting-label">Bomb Timer</label>
+        <div class="setting-chips" id="chips-bomb-timer">
+          <button class="chip" data-value="fast">⚡ Fast</button>
+          <button class="chip active" data-value="normal">💣 Normal</button>
+          <button class="chip" data-value="slow">🐢 Slow</button>
+        </div>
+      </div>
+
+      <div class="setting-group">
+        <label class="setting-label">Best Of</label>
+        <div class="setting-chips" id="chips-best-of">
+          <button class="chip active" data-value="1">1 Match</button>
+          <button class="chip" data-value="3">Best of 3</button>
+        </div>
+      </div>
+
+      <button class="btn btn-primary btn-large btn-full" id="btn-confirm-create">
+        <span class="btn-icon">🔥</span>
+        <span>CREATE ROOM</span>
+        <span class="btn-glow"></span>
+      </button>
+    </div>
+
+    <!-- JOIN ROOM panel -->
+    <div class="room-panel hidden" id="panel-join">
+      <div class="panel-title">
+        <span class="panel-icon">🚪</span>
+        ENTER ROOM CODE
+      </div>
+
+      <div class="code-input-group" id="room-code-input-group">
+        <input class="code-char" maxlength="1" type="text" autocomplete="off" spellcheck="false" data-index="0" />
+        <input class="code-char" maxlength="1" type="text" autocomplete="off" spellcheck="false" data-index="1" />
+        <input class="code-char" maxlength="1" type="text" autocomplete="off" spellcheck="false" data-index="2" />
+        <input class="code-char" maxlength="1" type="text" autocomplete="off" spellcheck="false" data-index="3" />
+        <input class="code-char" maxlength="1" type="text" autocomplete="off" spellcheck="false" data-index="4" />
+      </div>
+
+      <p class="code-status" id="code-status"></p>
+
+      <button class="btn btn-primary btn-large btn-full" id="btn-confirm-join" disabled>
+        <span>JOIN ROOM</span>
+        <span class="btn-arrow">→</span>
+        <span class="btn-glow"></span>
+      </button>
+    </div>
+
+    <!-- Toggle between create / join -->
+    <div class="room-toggle">
+      <button class="toggle-link active" id="toggle-create">Create Room</button>
+      <span class="toggle-sep">·</span>
+      <button class="toggle-link" id="toggle-join">Join Room</button>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!--  SCREEN: PLAYER SETUP                                        -->
+  <!-- ============================================================ -->
+  <section id="screen-setup" class="screen" role="main">
+    <div class="screen-header">
+      <button class="btn-back" id="btn-back-from-setup" aria-label="Go back">
+        <span>←</span> BACK
+      </button>
+    </div>
+
+    <div class="setup-content">
+      <div class="setup-title">JOIN THE GAME</div>
+      <p class="setup-subtitle">Set up your identity before entering the room</p>
+
+      <div class="avatar-picker">
+        <div class="avatar-preview" id="avatar-preview">
+          <div class="avatar-default-icon">?</div>
+          <img id="avatar-img" src="" alt="Avatar preview" class="hidden" />
+          <div class="avatar-overlay">
+            <span>📷</span>
+            <span>Upload</span>
+          </div>
+        </div>
+        <input type="file" id="avatar-file-input" accept="image/*" class="hidden" aria-label="Upload avatar" />
+        <div class="avatar-emoji-row" id="avatar-emoji-row">
+          <button class="avatar-emoji-opt" data-emoji="😈">😈</button>
+          <button class="avatar-emoji-opt" data-emoji="🤖">🤖</button>
+          <button class="avatar-emoji-opt" data-emoji="👾">👾</button>
+          <button class="avatar-emoji-opt" data-emoji="💀">💀</button>
+          <button class="avatar-emoji-opt" data-emoji="🎭">🎭</button>
+          <button class="avatar-emoji-opt" data-emoji="🦊">🦊</button>
+        </div>
+        <p class="avatar-hint">Tap to upload · or pick an emoji</p>
+      </div>
+
+      <div class="name-group">
+        <input
+          type="text"
+          id="player-name-input"
+          class="name-input"
+          maxlength="16"
+          placeholder="Enter your name..."
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <span class="name-counter" id="name-counter">0/16</span>
+      </div>
+
+      <div class="name-preview" id="name-preview-card">
+        <div class="preview-avatar" id="preview-avatar-display">?</div>
+        <div class="preview-name" id="preview-name-display">Player</div>
+      </div>
+
+      <button class="btn btn-primary btn-large btn-full" id="btn-ready-setup" disabled>
+        <span class="btn-icon">✅</span>
+        <span>I'M READY</span>
+        <span class="btn-glow"></span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!--  SCREEN: LOBBY                                               -->
+  <!-- ============================================================ -->
+  <section id="screen-lobby" class="screen" role="main">
+    <div class="lobby-header">
+      <div class="lobby-room-info">
+        <span class="lobby-label">ROOM CODE</span>
+        <div class="lobby-code-display">
+          <span id="lobby-code-text">XK4P2</span>
+          <button class="btn-copy" id="btn-copy-code" aria-label="Copy room code">📋</button>
+        </div>
+      </div>
+      <div class="lobby-player-count" id="lobby-player-count">1 / 4</div>
+    </div>
+
+    <div class="lobby-players-grid" id="lobby-players-grid">
+      <!-- Player cards injected by JS -->
+    </div>
+
+    <div class="lobby-empty-slots" id="lobby-empty-slots">
+      <!-- Empty slot indicators injected by JS -->
+    </div>
+
+    <div class="lobby-actions">
+      <div class="lobby-waiting-msg" id="lobby-waiting-msg">
+        Waiting for players...
+      </div>
+      <button class="btn btn-primary btn-large btn-full hidden" id="btn-start-game">
+        <span class="btn-icon">🔥</span>
+        <span>START GAME</span>
+        <span class="btn-glow"></span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!--  SCREEN: COUNTDOWN                                           -->
+  <!-- ============================================================ -->
+  <section id="screen-countdown" class="screen" role="main" aria-live="assertive">
+    <div class="countdown-content">
+      <div class="countdown-label">GAME STARTS IN</div>
+      <div class="countdown-number" id="countdown-number">3</div>
+      <div class="countdown-sub">GET READY</div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!--  SCREEN: GAME                                                -->
+  <!-- ============================================================ -->
+  <section id="screen-game" class="screen" role="main">
+
+    <!-- Panic overlay (color tint) -->
+    <div class="panic-tint" id="panic-tint" aria-hidden="true"></div>
+
+    <!-- Round info -->
+    <div class="game-hud">
+      <div class="hud-round" id="hud-round">ROUND 1</div>
+      <div class="hud-players-left" id="hud-players-left">4 LEFT</div>
+    </div>
+
+    <!-- Players circle -->
+    <div class="game-arena" id="game-arena">
+      <!-- Player nodes injected by JS -->
+    </div>
+
+    <!-- Bomb status (shown near holder) -->
+    <div class="bomb-status-bar" id="bomb-status-bar" aria-live="polite">
+      <div class="bomb-visual-timer" id="bomb-visual-timer">
+        <div class="bvt-track">
+          <div class="bvt-fill" id="bvt-fill"></div>
+        </div>
+        <div class="bvt-phases">
+          <span class="bvt-phase" style="--c:#00ff88">●</span>
+          <span class="bvt-phase" style="--c:#ffd700">●</span>
+          <span class="bvt-phase" style="--c:#ff6b00">●</span>
+          <span class="bvt-phase" style="--c:#ff2d2d">●</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Flying bomb (animated, positioned via JS) -->
+    <div class="flying-bomb hidden" id="flying-bomb" aria-hidden="true">
+      💣
+      <div class="flying-trail"></div>
+    </div>
+
+    <!-- Action zone -->
+    <div class="game-actions" id="game-actions">
+      <div class="holder-status" id="holder-status">
+        <span id="holder-status-text">Waiting for bomb...</span>
+      </div>
+
+      <div class="action-buttons" id="action-buttons">
+        <button class="btn-pass" id="btn-pass" disabled>
+          <div class="pass-inner">
+            <span class="pass-icon">⚡</span>
+            <span class="pass-label">PASS</span>
+            <span class="pass-sub">Get rid of it</span>
+          </div>
+          <div class="pass-cooldown-bar" id="pass-cooldown-bar"></div>
+        </button>
+
+        <button class="btn-hold" id="btn-hold" disabled>
+          <div class="hold-inner">
+            <span class="hold-icon">💀</span>
+            <span class="hold-label">HOLD</span>
+            <span class="hold-sub">I can take it</span>
+          </div>
+          <div class="hold-danger-bar" id="hold-danger-bar">
+            <div class="hold-danger-fill" id="hold-danger-fill"></div>
+          </div>
+        </button>
+      </div>
+
+      <!-- Player selector (shown when PASS is tapped) -->
+      <div class="pass-target-selector hidden" id="pass-target-selector">
+        <div class="pts-title">PASS TO:</div>
+        <div class="pts-players" id="pts-players">
+          <!-- target buttons injected by JS -->
+        </div>
+        <button class="pts-cancel" id="pts-cancel">✕ Cancel</button>
+      </div>
+    </div>
+
+    <!-- Spectator panel -->
+    <div class="spectator-panel hidden" id="spectator-panel">
+      <div class="spec-label">YOU'RE OUT — WATCHING</div>
+      <div class="spec-reactions" id="spec-reactions">
+        <button class="spec-react" data-emoji="😱">😱</button>
+        <button class="spec-react" data-emoji="🤣">🤣</button>
+        <button class="spec-react" data-emoji="👀">👀</button>
+        <button class="spec-react" data-emoji="🔥">🔥</button>
+        <button class="spec-react" data-emoji="💀">💀</button>
+      </div>
+    </div>
+
+    <!-- Flying reaction emojis container -->
+    <div class="reactions-layer" id="reactions-layer" aria-hidden="true"></div>
+
+  </section>
+
+  <!-- ============================================================ -->
+  <!--  SCREEN: EXPLOSION                                           -->
+  <!-- ============================================================ -->
+  <section id="screen-explosion" class="screen" role="main" aria-live="assertive">
+    <div class="explosion-flash" id="explosion-flash" aria-hidden="true"></div>
+
+    <div class="explosion-content">
+      <div class="explosion-fire" aria-hidden="true">
+        <span class="fire-p">🔥</span>
+        <span class="fire-p">🔥</span>
+        <span class="fire-p">🔥</span>
+      </div>
+
+      <div class="explosion-victim-card" id="explosion-victim-card">
+        <div class="victim-avatar" id="victim-avatar">💀</div>
+        <div class="victim-name" id="victim-name">Player</div>
+        <div class="victim-tagline" id="victim-tagline">couldn't handle the heat!</div>
+      </div>
+
+      <div class="explosion-label" id="explosion-label">
+        <span class="elim-text">💥 ELIMINATED 💥</span>
+      </div>
+
+      <div class="survivors-info" id="survivors-info">
+        Survivors remaining: <strong id="survivors-count">3</strong>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!--  SCREEN: RESULTS                                             -->
+  <!-- ============================================================ -->
+  <section id="screen-results" class="screen" role="main">
+    <div class="results-content">
+      <div class="results-title">GAME OVER</div>
+
+      <div class="winner-showcase" id="winner-showcase">
+        <div class="winner-crown">🏆</div>
+        <div class="winner-avatar" id="winner-avatar">😈</div>
+        <div class="winner-name" id="winner-name">Player</div>
+        <div class="winner-sub">Last one standing</div>
+      </div>
+
+      <div class="results-divider">
+        <span>RESULTS</span>
+      </div>
+
+      <div class="results-list" id="results-list">
+        <!-- result rows injected by JS -->
+      </div>
+
+      <div class="results-actions">
+        <button class="btn btn-secondary btn-medium" id="btn-exit-room">
+          EXIT
+        </button>
+        <button class="btn btn-primary btn-medium" id="btn-play-again">
+          <span class="btn-icon">🔄</span>
+          PLAY AGAIN
+          <span class="btn-glow"></span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!--  TOAST NOTIFICATION                                          -->
+  <!-- ============================================================ -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- ============================================================ -->
+  <!--  SCRIPTS (loaded in dependency order)                        -->
+  <!-- ============================================================ -->
+  <script src="config.js"></script>
+  <script src="events.js"></script>
+  <script src="state.js"></script>
+  <script src="network.js"></script>
+  <script src="game.js"></script>
+  <script src="animations.js"></script>
+  <script src="audio.js"></script>
+  <script src="ui.js"></script>
+  <script src="main.js"></script>
+
+</body>
+</html>

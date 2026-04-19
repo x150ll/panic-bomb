@@ -898,3 +898,4 @@ const Audio = (() => {
   });
 
 })();
+window.Audio = Audio;

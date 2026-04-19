@@ -7,7 +7,7 @@
 const CONFIG = Object.freeze({
 
   // ── Server ──────────────────────────────────────────────────────
-  SERVER_URL: 'https://panic-bomb.bonto.run',
+  SERVER_URL: 'https://panic-bomb-server.onrender.com',
 
   // ── Room ────────────────────────────────────────────────────────
   ROOM: Object.freeze({
@@ -28,9 +28,9 @@ const CONFIG = Object.freeze({
 
   // ── Bomb Timing (milliseconds) ──────────────────────────────────
   BOMB: Object.freeze({
-    FAST:   Object.freeze({ MIN: 15_000,  MAX: 40_000  }),
-    NORMAL: Object.freeze({ MIN: 30_000,  MAX: 75_000  }),
-    SLOW:   Object.freeze({ MIN: 50_000,  MAX: 120_000 }),
+    FAST:   Object.freeze({ MIN: 15000,  MAX: 40000  }),
+    NORMAL: Object.freeze({ MIN: 30000,  MAX: 75000  }),
+    SLOW:   Object.freeze({ MIN: 50000,  MAX: 120000 }),
   }),
 
   // ── Panic Thresholds (fraction of total bomb time remaining) ────
@@ -67,43 +67,43 @@ const CONFIG = Object.freeze({
 
   // ── Pass mechanic ────────────────────────────────────────────────
   PASS: Object.freeze({
-    COOLDOWN_MS:          1_500,   // ms after receiving bomb before you can pass
+    COOLDOWN_MS:          1500,   // ms after receiving bomb before you can pass
     NO_BACKPASS_WINDOW_MS: 0,      // no backpass rule (same transfer)
   }),
 
   // ── AFK / Auto-pass ─────────────────────────────────────────────
   AFK: Object.freeze({
-    FAST_MS:   8_000,
-    NORMAL_MS: 12_000,
-    SLOW_MS:   18_000,
-    WARN_MS:   3_000,   // show warning this many ms before auto-pass
+    FAST_MS:   8000,
+    NORMAL_MS: 12000,
+    SLOW_MS:   18000,
+    WARN_MS:   3000,   // show warning this many ms before auto-pass
   }),
 
   // ── Disconnect / Reconnect ───────────────────────────────────────
   DISCONNECT: Object.freeze({
-    GRACE_MS:          2_000,    // hold state before treating as eliminated
-    RECONNECT_WINDOW_MS: 30_000, // allow rejoin as spectator within this window
+    GRACE_MS:          2000,    // hold state before treating as eliminated
+    RECONNECT_WINDOW_MS: 30000, // allow rejoin as spectator within this window
   }),
 
   // ── Network fairness ─────────────────────────────────────────────
   NETWORK: Object.freeze({
     LATENCY_FORGIVENESS_MS: 200, // bomb "just arrived" window
     HIGH_PING_THRESHOLD_MS: 500, // show warning above this ping
-    VERY_HIGH_PING_MS:     1_000, // treat as disconnect above this
+    VERY_HIGH_PING_MS:     1000, // treat as disconnect above this
   }),
 
   // ── Animation durations (milliseconds) ──────────────────────────
   ANIMATION: Object.freeze({
     PASS_ARC_MS:       300,
-    EXPLOSION_MS:      3_000,
-    ELIMINATION_MS:    3_000,
-    COUNTDOWN_STEP_MS: 1_000,
+    EXPLOSION_MS:      3000,
+    ELIMINATION_MS:    3000,
+    COUNTDOWN_STEP_MS: 1000,
     SCREEN_TRANSITION_MS: 400,
     WHITE_FLASH_MS:    150,
     SLOW_MO_TRIGGER_S: 3.0,     // seconds remaining when slow-mo starts
     SLOW_MO_FACTOR:    0.5,     // playback speed multiplier
     AUDIO_DROP_AT_S:   2.0,     // seconds remaining when audio drops
-    FAKE_OUT_MIN_INTERVAL_MS: 20_000, // minimum gap between fake-outs
+    FAKE_OUT_MIN_INTERVAL_MS: 20000, // minimum gap between fake-outs
   }),
 
   // ── Fake-out settings ────────────────────────────────────────────
@@ -116,8 +116,8 @@ const CONFIG = Object.freeze({
 
   // ── Round settings ───────────────────────────────────────────────
   ROUND: Object.freeze({
-    BETWEEN_ROUND_MS:       3_000,  // pause before next round starts
-    REVEAL_BOMB_HOLDER_MS:  2_000,  // suspense before bomb is assigned
+    BETWEEN_ROUND_MS:       3000,  // pause before next round starts
+    REVEAL_BOMB_HOLDER_MS:  2000,  // suspense before bomb is assigned
   }),
 
   // ── Spectator reactions ──────────────────────────────────────────
@@ -292,3 +292,4 @@ const CONFIG = Object.freeze({
   }),
 
 });
+window.CONFIG = CONFIG;

@@ -168,3 +168,4 @@ const EventBus = (() => {
   return Object.freeze({ on, once, off, offAll, emit, emitAsync, setDebug, getHistory, listenerCount });
 
 })();
+window.EventBus = EventBus;

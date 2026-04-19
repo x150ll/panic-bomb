@@ -898,3 +898,4 @@ const Animations = (() => {
   });
 
 })();
+window.Animations = Animations;

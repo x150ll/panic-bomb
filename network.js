@@ -144,7 +144,7 @@ const Network = (() => {
       return;
     }
 
-    const delay = Math.min(1000 * Math.pow(2, _reconnectAttempts), 30_000);
+    const delay = Math.min(1000 * Math.pow(2, _reconnectAttempts), 30000);
     _reconnectAttempts++;
     _reconnecting = true;
     State.set('network.reconnecting', true);
@@ -286,7 +286,7 @@ const Network = (() => {
     _socket = io(serverUrl, {
       transports:        ['websocket', 'polling'],
       reconnection:      false,   // we handle reconnect ourselves
-      timeout:           10_000,
+      timeout:           10000,
       forceNew:          true,
       withCredentials:   false,
     });
@@ -517,3 +517,4 @@ const Network = (() => {
   });
 
 })();
+window.Network = Network;

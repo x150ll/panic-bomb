@@ -843,3 +843,4 @@ const Game = (() => {
   return Object.freeze({ init });
 
 })();
+window.Game = Game;

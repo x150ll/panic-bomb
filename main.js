@@ -24,7 +24,17 @@
   const REQUIRED = ['CONFIG', 'EventBus', 'State', 'Network', 'Game', 'Animations', 'Audio', 'UI'];
 
   function _checkModules() {
-    const missing = REQUIRED.filter(name => typeof window[name] === 'undefined');
+    const moduleMap = {
+      CONFIG: typeof CONFIG !== 'undefined' ? CONFIG : undefined,
+      EventBus: typeof EventBus !== 'undefined' ? EventBus : undefined,
+      State: typeof State !== 'undefined' ? State : undefined,
+      Network: typeof Network !== 'undefined' ? Network : undefined,
+      Game: typeof Game !== 'undefined' ? Game : undefined,
+      Animations: typeof Animations !== 'undefined' ? Animations : undefined,
+      Audio: typeof Audio !== 'undefined' ? Audio : undefined,
+      UI: typeof UI !== 'undefined' ? UI : undefined,
+    };
+    const missing = Object.keys(moduleMap).filter(name => moduleMap[name] === undefined);
     if (missing.length > 0) {
       console.error('[Main] Missing modules:', missing.join(', '));
       _showFatalError('Failed to load game modules: ' + missing.join(', '));
@@ -287,7 +297,7 @@
           const id = holderId || State.get('localPlayer.id');
           EventBus.emit(CONFIG.SERVER_EVENTS.BOMB_ASSIGNED, {
             holderId: id,
-            explodeAt: Date.now() + 45_000,
+            explodeAt: Date.now() + 45000,
             bombMode:  'normal',
           });
         },
